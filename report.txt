@@ -1,0 +1,49 @@
+1. Data Preparation
+Segmentation networks assume data in a certain data. Most of them accept images with dimensions (h,w,c) and its labels with dimensions (h,w,n_classes).
+The Messechusets road/building dataset is given in structure:
+- dataset
+    |_-roads
+        |_-train
+            |_-images
+            |_-labels
+        |_-test
+            |_-images
+            |_-labels
+    |_-buildings
+        |_-train
+            |_-images
+            |_-labels
+        |_-test
+            |_-images
+            |_-labels
+The structure is a bit inappropriate for keras models or at least i couldn't figure out how to make it work with existing structure.
+I therefore created a scrip which transforms the dataset in a structure:
+-dataset
+    |_-train
+        |_-images
+        |_-labels
+    |_-test
+        |_-images
+        |_-labels
+where I joined labels of the images so that the labels are now represented as (w,h,n_classes). In this case (1500,1500,2).
+The function is defined in file 'data_util.py' and it assumes the images are already converted to '.png' ('tif_to_png.sh').
+
+
+2.Model 
+I used a keras implmentation of the model, since it has the least problems in terms of instalation. 
+I always had probems with caffe and versions of cuda,cudnn it needed so I tend to avoid using it (its a good thing Keras and TF are currently used the most).
+The model can be obtained here:
+ https://github.com/RajkumarPreetham/Road-scene-understanding/blob/master/segnet.py
+This implementation also uses max-pooling with indices.
+I also wanted to customize the network to classify images based on the original class it belongs to (buildings or roads).
+But when writing a script for reshaping the dataset structure I soon noticed that same image appears in both classes.
+I also downsized the original images to 512x512 pixels, since I only had one GTX 1050 Ti (4GB ram) graphic card available. 
+
+
+3.Results
+Since I couldnt find a pretrained keras model I trained it myself. The accuracy on the CamVid after 10 epochs was 75%.
+The official reported accuracy was around 90%, so I should have left it for more iterations to obtain those results. 
+Since I only needed the weights for the finetuninng I didnt run it again. 
+I then finetuned the model on the Messechusets dataset and obtained 96% accuracy after 10 epochs. I froze all the layers,
+except for the last convolutional block. From the previous seminar work and from the recommendations on various blogs
+I knew training only the last block and top layer would output the best results. 
